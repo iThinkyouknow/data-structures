@@ -8,6 +8,7 @@ const create_node = (val) => {
 	}
 };
 
+
 const create_binary_tree = (node) => {
 
 	const calc_depth = (val_1, val_2) => {
@@ -50,29 +51,36 @@ const create_binary_tree = (node) => {
 		return depth;
 	};
 
-	const calc_height = () => {
-		const traverse = (curr_node) => (steps) => {
-			if (curr_node === null) return steps;
-			const new_steps = steps + 1;
-			const left_steps = traverse(curr_node.left)(new_steps);
-			const right_steps = traverse(curr_node.right)(new_steps);
-			const both_steps = (left_steps >= right_steps) ? left_steps : right_steps;
-	 
-			return both_steps;
-		};
+	const traverse = (curr_node) => (steps) => {
 
-		return traverse(node)(0);
+		if (curr_node === null) return steps;
+		const new_steps = steps + 1;
+		const left_steps = traverse(curr_node.left)(new_steps);
+		const right_steps = traverse(curr_node.right)(new_steps);
+		const both_steps = (left_steps >= right_steps) ? left_steps : right_steps;
+
+		return both_steps;
 	};
 
-	const height = calc_height();
-
-	const is_balanced_fn = () => {
-
+	const calc_height = (_node) => {
+		return traverse(_node)(0);
 	};
 
-	const is_balanced = is_balanced_fn();
+	const height = calc_height(node);
+
+	const is_balanced_fn = (_node) => {	
+		const left_steps = (_node.left !== null) ? traverse(_node.left)(0) : 0;
+		const right_steps = (_node.right !== null) ? traverse(_node.right)(0) : 0;
+
+		const is_balanced = (Math.abs(left_steps - right_steps) <= 1);
+
+		return is_balanced;
+	};
+
+	const is_balanced = is_balanced_fn(node);
 
 	const add_node = (new_node) => {
+		//todo
 		const mod_tree_node = {};
 		return create_binary_tree(mod_tree_node);
 	};
@@ -90,7 +98,7 @@ const create_binary_tree = (node) => {
 		nodes: node,
 		depth: calc_depth,
 		height: height,
-		is_balanced: is_balanced || is_balanced_fn(),
+		is_balanced: is_balanced,
 		add_node: add_node,
 		remove_node: remove_node
 	};
@@ -145,3 +153,4 @@ const test_node = {
 const b_tree = create_binary_tree(test_node);
 log(b_tree);
 log(b_tree.height);
+log(b_tree.is_balanced);
