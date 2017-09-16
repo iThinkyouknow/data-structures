@@ -1,3 +1,4 @@
+'use strict'
 const {log} = console;
 
 const create_node = (val) => {
@@ -11,23 +12,22 @@ const create_node = (val) => {
 
 const create_binary_tree = (node) => {
 
+	const find_node = (_val_1) => (curr_node) => {
+			if (curr_node === null) return null;
+	
+			if (curr_node.val === _val_1) {
+				// find val_2
+				return curr_node;
+
+			} else if (_val_1 < curr_node.val) {
+				return find_val_1(_val_1)(curr_node.left);
+
+			} else if (_val_1 > curr_node.val) {
+				return find_val_1(_val_1)(curr_node.right);
+			} 
+	};
+
 	const calc_depth = (val_1, val_2) => {
-
-		// find val_1
-		const find_val_1 = (_val_1) => (curr_node) => {
-				if (curr_node === null) return null;
-		
-				if (curr_node.val === _val_1) {
-					// find val_2
-					return curr_node;
-
-				} else if (_val_1 < curr_node.val) {
-					return find_val_1(_val_1)(curr_node.left);
-
-				} else if (_val_1 > curr_node.val) {
-					return find_val_1(_val_1)(curr_node.right);
-				} 
-		};
 
 		const find_val_2 = (_val_2) => (curr_node) => (steps) => {
 			const new_steps = steps + 1;
@@ -44,7 +44,7 @@ const create_binary_tree = (node) => {
 			}
 		};
 
-		const val_1_node = find_val_1(val_1)(node);
+		const val_1_node = find_node(val_1)(node);
 		if (val_1_node === null) return console.error('val 1 does not exist in tree');
 		const depth = find_val_2(val_2)(val_1_node)(0);
 		if (depth === null) return console.error('val 2 does not exist in tree');
@@ -81,8 +81,51 @@ const create_binary_tree = (node) => {
 
 	const add_node = (new_node) => {
 		//todo
-		const mod_tree_node = {};
-		return create_binary_tree(mod_tree_node);
+		const insert_node = (_new_node) => (_curr_node) => {
+					
+			if (_new_node.val === _curr_node.val) return;
+			if (_new_node.val > _curr_node.val) {
+	
+				if (_curr_node.right === null) {
+
+					 _curr_node.right = _new_node;
+
+				} else {
+					const {val, right, left} = Object.assign({}, _curr_node.right);
+					_curr_node.right = {
+						val,
+						right,
+						left,
+					};
+					
+					return insert_node(_new_node)(_curr_node.right);
+				}
+			} else if (_new_node.val < _curr_node.val) {
+				if (_curr_node.left === null) {
+					 _curr_node.left = _new_node;
+
+				} else {
+					const {val, right, left} = Object.assign({}, _curr_node.left);
+					_curr_node.left = {
+						val,
+						right,
+						left,
+					};
+					
+					return insert_node(_new_node)(_curr_node.left);
+				}
+
+			} else {
+				return;
+			}
+
+		};
+
+
+		const new_original_node = Object.assign({}, node);
+		insert_node(new_node)(new_original_node);
+	
+		return create_binary_tree(new_original_node);
 	};
 
 	const remove_node = (val) => {
@@ -90,7 +133,7 @@ const create_binary_tree = (node) => {
 		return create_binary_tree(mod_tree_node);
 	};
 
-	make_from_array = (arr) => {
+	const make_from_array = (arr) => {
 
 	};
 
@@ -98,6 +141,7 @@ const create_binary_tree = (node) => {
 		nodes: node,
 		depth: calc_depth,
 		height: height,
+		find: find_node,
 		is_balanced: is_balanced,
 		add_node: add_node,
 		remove_node: remove_node
@@ -121,11 +165,7 @@ const test_node = {
 					left: {
 						val: 5,
 						left: null,
-						right: {
-							val: 6,
-							left: null,
-							right: null
-						}
+						right: null
 					},
 					right: null
 				},
@@ -151,6 +191,8 @@ const test_node = {
 };
 
 const b_tree = create_binary_tree(test_node);
-log(b_tree);
-log(b_tree.height);
-log(b_tree.is_balanced);
+// log(b_tree);
+// log(b_tree.height);
+// log(b_tree.is_balanced);
+log(JSON.stringify(b_tree.add_node(create_node(1)), null, 4));
+log(JSON.stringify(b_tree.add_node(create_node(2000)), null, 4));
